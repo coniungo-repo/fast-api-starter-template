@@ -1,24 +1,28 @@
 import logging
-from enum import IntEnum
+import sys
+from typing import Literal
+
+LogLevelStr = Literal["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"]
+
+LOG_FORMATS: dict[LogLevelStr, str] = {
+    "DEBUG": "[%(asctime)s] %(levelname)-8s %(name)s:%(filename)s:%(lineno)d - %(message)s",
+    "INFO": "[%(asctime)s] %(levelname)-8s %(name)s - %(message)s",
+    "WARNING": "[%(asctime)s] %(levelname)-8s %(name)s - %(message)s",
+    "ERROR": "[%(asctime)s] %(levelname)-8s %(name)s:%(filename)s:%(lineno)d - %(message)s",
+    "CRITICAL": "[%(asctime)s] %(levelname)-8s %(name)s:%(filename)s:%(lineno)d - %(message)s",
+}
 
 
-class LogLevel(IntEnum):
-    """Mapping of standard log levels to Python logging constants."""
+def configure_logging(level_name: LogLevelStr = "INFO") -> None:
+    """Configure the root application logger."""
 
-    DEBUG = logging.DEBUG
-    INFO = logging.INFO
-    WARNING = logging.WARNING
-    ERROR = logging.ERROR
-
-
-DEBUG_FORMAT = "%(levelname)s:%(name)s:%(message)s:%(pathname)s:%(lineno)d"
-DEFAULT_FORMAT = "%(asctime)s %(levelname)s %(name)s %(message)s"
-
-
-def configure_logging(level: LogLevel = LogLevel.INFO) -> None:
-    """Initializes global logging config, selecting format based on severity level."""
     logging.basicConfig(
-        level=level,
-        format=DEBUG_FORMAT if level == LogLevel.DEBUG else DEFAULT_FORMAT,
+        level=getattr(logging, level_name, logging.INFO),
+        format=LOG_FORMATS[level_name],
+        datefmt="%Y-%m-%d %H:%M:%S",
+        handlers=[logging.StreamHandler(sys.stdout)],
         force=True,
     )
+
+    logging.getLogger("uvicorn.access").setLevel(logging.WARNING)
+    logging.getLogger("sqlalchemy.engine").setLevel(logging.WARNING)
