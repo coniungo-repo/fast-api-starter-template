@@ -20,7 +20,7 @@ class UUIDMixin:
         unique=True,
         index=True,
         nullable=False,
-        default=uuid4(),
+        default=uuid4,
     )
 
 

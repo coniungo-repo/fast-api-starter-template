@@ -29,6 +29,13 @@ class ValidationError(AppException):
     default_message = "Validation failed."
 
 
+class ConflictError(AppException):
+    """Raised when a requested resource already exist."""
+
+    status_code = HTTPStatus.CONFLICT
+    default_message = "Resource already exists."
+
+
 class UnauthorizedError(AppException):
     """Raised when authentication credentials are missing or invalid."""
 
