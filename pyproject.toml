@@ -1,10 +1,11 @@
 [project]
-name = "fast-api"
+name = "fast-api-starter"
 version = "0.1.0"
 description = "Add your description here"
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
+    "fastapi[standard]>=0.140.0",
     "phonenumbers>=9.0.34",
     "pydantic-extra-types>=2.11.1",
     "pydantic-settings>=2.14.2",
