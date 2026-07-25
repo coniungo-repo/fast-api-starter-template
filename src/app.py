@@ -4,6 +4,7 @@ from common.utils.enums import Environment
 from core.config import settings
 from core.exception_handlers import register_exception_handlers
 from core.logging import configure_logging
+from src.api.router import api_router
 
 
 def create_app() -> FastAPI:
@@ -22,6 +23,8 @@ def create_app() -> FastAPI:
     )
 
     register_exception_handlers(entry)
+
+    entry.include_router(api_router)
 
     return entry
 
