@@ -4,12 +4,11 @@ from sqlalchemy import String
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import Mapped, mapped_column
 
-from src.database.base import Base
 from src.database.mixins import ActiveMixin, AuthMixin
-from src.database.models import BaseModel
+from src.database.models import BaseDBModel
 
 
-class User(AuthMixin, BaseModel, ActiveMixin, Base):
+class User(BaseDBModel, AuthMixin, ActiveMixin):
     """Database model representing an application User entity."""
 
     __tablename__ = "users"

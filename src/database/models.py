@@ -2,7 +2,7 @@ from src.database.base import Base
 from src.database.mixins import SoftDeleteMixin, TimestampMixin, UUIDMixin
 
 
-class BaseModel(
+class BaseDBModel(
     UUIDMixin,
     TimestampMixin,
     SoftDeleteMixin,
