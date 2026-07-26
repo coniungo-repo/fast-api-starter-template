@@ -17,6 +17,7 @@ class UUIDMixin:
 
     public_id: Mapped[UUID] = mapped_column(
         Uuid(as_uuid=True),
+        primary_key=True,
         unique=True,
         index=True,
         nullable=False,
