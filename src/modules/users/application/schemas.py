@@ -1,79 +1,104 @@
 from datetime import datetime
 from uuid import UUID
 
-from pydantic import BaseModel, ConfigDict, EmailStr, Field, HttpUrl
+from pydantic import BaseModel, ConfigDict, EmailStr, Field, HttpUrl, field_validator
 
 
 class ProfileImageSchema(BaseModel):
-    """Validates external media metadata blocks."""
+    """External media metadata."""
 
     id: str = Field(
         ...,
-        description="The asset identifier tracking index from the cloud host provider.",
+        description="Cloud storage asset identifier.",
     )
+
     url: HttpUrl = Field(
         ...,
-        description="The direct secure public endpoint URL layout pointing to the file.",
+        description="Public secure URL of the image.",
     )
 
 
 class UserBase(BaseModel):
-    """Shared baseline schema ensuring structural alignment across child modules."""
+    """Shared user fields."""
 
     email: EmailStr = Field(
-        ..., description="The unique, verified primary email address context."
+        ...,
+        description="Primary user email address.",
     )
+
     phone: str = Field(
         ...,
         min_length=8,
         max_length=16,
-        examples=["+2348012345678"],
-        description="The unique contact phone string formatted strictly following E.164 rules.",
+        examples=["+447911123456"],
+        description="Customer contact phone number in E.164 format.",
     )
-    full_name: str | None = Field(default=None, min_length=2, max_length=100)
+
+    full_name: str = Field(
+        ...,
+        min_length=2,
+        max_length=100,
+        description="Customer full name.",
+    )
+
+    @field_validator("email")
+    @classmethod
+    def normalise_email(
+        cls,
+        value: str,
+    ) -> str:
+        return value.strip().lower()
 
 
 class UserCreate(UserBase):
-    """Strict data validation rule contract for processing registration payloads via SuperTokens setup."""
+    """
+    Data required when creating a user profile.
 
-    auth_id: str = Field(
+    auth_id is injected internally from SuperTokens.
+    """
+
+    profile_image: ProfileImageSchema | None = None
+
+
+class UserUpdate(BaseModel):
+    """
+    Fields a customer can update.
+    """
+
+    phone: str = Field(
         ...,
-        min_length=1,
-        max_length=128,
-        description="The matching SuperTokens userId.",
+        min_length=8,
+        max_length=16,
     )
 
-
-class CurrentUserResponse(UserBase):
-    """Secure serialization payload model regulating public endpoint responses."""
-
-    model_config = ConfigDict(from_attributes=True)
-
-    public_id: UUID = Field(
-        ..., description="The immutable public tracking structural token identifier."
+    full_name: str = Field(
+        ...,
+        min_length=2,
+        max_length=100,
     )
-    auth_id: str = Field(
-        ..., description="The SuperTokens external user account tracker."
-    )
-    profile_image: ProfileImageSchema | None = Field(default=None)
-    is_active: bool = Field(default=True)
-    created_at: datetime
-    updated_at: datetime
+
+    profile_image: ProfileImageSchema | None = None
 
 
 class UserResponse(UserBase):
-    """Secure serialization payload model regulating public endpoint responses."""
+    """Public user response."""
 
-    model_config = ConfigDict(from_attributes=True)
+    model_config = ConfigDict(
+        from_attributes=True,
+    )
 
-    public_id: UUID = Field(
-        ..., description="The immutable public tracking structural token identifier."
-    )
-    auth_id: str = Field(
-        ..., description="The SuperTokens external user account tracker."
-    )
-    profile_image: ProfileImageSchema | None = Field(default=None)
-    is_active: bool = Field(default=True)
-    is_deleted: bool = Field(default=False)
+    public_id: UUID
+
+    profile_image: ProfileImageSchema | None = None
+
+    is_active: bool
+
     created_at: datetime
+
     updated_at: datetime
+
+
+class AdminUserResponse(UserResponse):
+    """Internal/admin response."""
+
+    is_deleted: bool
