@@ -19,20 +19,25 @@ class ProfileImageSchema(BaseModel):
 
 
 class UserBase(BaseModel):
-    """Shared user fields."""
+    """Fields shared by all user representations."""
 
     email: EmailStr = Field(
         ...,
         description="Primary user email address.",
     )
 
-    phone: str = Field(
-        ...,
-        min_length=8,
-        max_length=16,
-        examples=["+447911123456"],
-        description="Customer contact phone number in E.164 format.",
-    )
+    @field_validator("email")
+    @classmethod
+    def normalise_email(cls, value: str) -> str:
+        return value.strip().lower()
+
+
+class GuestUserCreate(UserBase):
+    """
+    User creation from guest checkout.
+
+    Guest checkout collects customer details before authentication exists.
+    """
 
     full_name: str = Field(
         ...,
@@ -41,20 +46,23 @@ class UserBase(BaseModel):
         description="Customer full name.",
     )
 
-    @field_validator("email")
-    @classmethod
-    def normalise_email(
-        cls,
-        value: str,
-    ) -> str:
-        return value.strip().lower()
+    phone: str = Field(
+        ...,
+        min_length=8,
+        max_length=16,
+        examples=["+447911123456"],
+        description="Customer phone number in E.164 format.",
+    )
+
+    profile_image: ProfileImageSchema | None = None
 
 
 class UserCreate(UserBase):
     """
-    Data required when creating a user profile.
+    User creation after successful SuperTokens authentication.
 
     auth_id is injected internally from SuperTokens.
+    Additional customer details can be collected later.
     """
 
     profile_image: ProfileImageSchema | None = None
@@ -62,32 +70,41 @@ class UserCreate(UserBase):
 
 class UserUpdate(BaseModel):
     """
-    Fields a customer can update.
+    Customer profile update fields.
     """
 
-    phone: str = Field(
-        ...,
-        min_length=8,
-        max_length=16,
-    )
-
-    full_name: str = Field(
-        ...,
+    full_name: str | None = Field(
+        default=None,
         min_length=2,
         max_length=100,
+        description="Customer full name.",
+    )
+
+    phone: str | None = Field(
+        default=None,
+        min_length=8,
+        max_length=16,
+        examples=["+447911123456"],
+        description="Customer phone number in E.164 format.",
     )
 
     profile_image: ProfileImageSchema | None = None
 
 
 class UserResponse(UserBase):
-    """Public user response."""
+    """
+    Public user representation.
+    """
 
     model_config = ConfigDict(
         from_attributes=True,
     )
 
     public_id: UUID
+
+    full_name: str | None = None
+
+    phone: str | None = None
 
     profile_image: ProfileImageSchema | None = None
 
@@ -99,6 +116,8 @@ class UserResponse(UserBase):
 
 
 class AdminUserResponse(UserResponse):
-    """Internal/admin response."""
+    """
+    Internal/admin user representation.
+    """
 
     is_deleted: bool
