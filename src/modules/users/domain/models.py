@@ -20,11 +20,11 @@ class User(BaseDBModel, AuthMixin, ActiveMixin):
         nullable=False,
     )
 
-    phone: Mapped[str] = mapped_column(
+    phone: Mapped[str | None] = mapped_column(
         String(30),
         unique=True,
         index=True,
-        nullable=False,
+        nullable=True,
     )
 
     full_name: Mapped[str | None] = mapped_column(

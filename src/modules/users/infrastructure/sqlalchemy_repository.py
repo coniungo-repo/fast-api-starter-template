@@ -3,12 +3,15 @@ from uuid import UUID
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from src.modules.users.domain.entities import CreateUserData
+from src.modules.users.domain.entities import CreateUserData, UpdateUserData
 from src.modules.users.domain.models import User
 from src.modules.users.domain.repository import UserRepository
 
 
 class SQLAlchemyUserRepository(UserRepository):
+    """
+    SQLAlchemy implementation of user persistence.
+    """
 
     def __init__(
         self,
@@ -55,10 +58,47 @@ class SQLAlchemyUserRepository(UserRepository):
             email=data.email,
             phone=data.phone,
             full_name=data.full_name,
-            profile_image=(data.profile_image),
+            profile_image=data.profile_image,
         )
 
         self.session.add(user)
+
+        await self.session.flush()
+
+        return user
+
+    async def update_auth_id(
+        self,
+        user: User,
+        auth_id: str,
+    ) -> User:
+        """
+        Link an existing guest user to SuperTokens.
+        """
+
+        user.auth_id = auth_id
+
+        await self.session.flush()
+
+        return user
+
+    async def update(
+        self,
+        user: User,
+        data: UpdateUserData,
+    ) -> User:
+        """
+        Update user profile fields.
+        """
+
+        if data.full_name is not None:
+            user.full_name = data.full_name
+
+        if data.phone is not None:
+            user.phone = data.phone
+
+        if data.profile_image is not None:
+            user.profile_image = data.profile_image
 
         await self.session.flush()
 
