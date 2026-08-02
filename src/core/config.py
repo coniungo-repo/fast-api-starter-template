@@ -17,14 +17,16 @@ class Settings(BaseSettings):
     DEBUG: bool = False
     APP_ENV: Environment
 
+    FRONTEND_URL: str
+    BACKEND_URL: str
+
+    SUPER_TOKENS_CONNECTION_URI: str
+    SUPER_TOKENS_API_KEY: str
+
     DATABASE_URL: PostgresDsn | None = Field(
         default=None,
         examples=["postgresql+asyncpg://user:password@localhost:5432/dbname"],
     )
-
-    JWT_SECRET: str = Field(..., min_length=32)
-    JWT_ALGORITHM: str = "HS256"
-    ACCESS_TOKEN_EXPIRE_MINUTES: int = Field(default=30, ge=1)
 
     LOG_LEVEL: LogLevelStr = "INFO"
 

@@ -14,5 +14,6 @@ dependencies = [
     "pydantic[email]>=2.13.4",
     "slowapi>=0.1.10",
     "sqlalchemy[asyncio]>=2.0.51",
+    "supertokens-python>=0.31.3",
     "uvicorn[standard]>=0.51.0",
 ]

@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 from uuid import UUID
 
-from src.modules.users.domain.entities import CreateUserData
+from src.modules.users.domain.entities import CreateUserData, UpdateUserData
 from src.modules.users.domain.models import User
 
 
@@ -32,4 +32,22 @@ class UserRepository(ABC):
     async def create(
         self,
         data: CreateUserData,
+    ) -> User: ...
+
+    @abstractmethod
+    async def update_auth_id(
+        self,
+        user: User,
+        auth_id: str,
+    ) -> User:
+        """
+        Link a SuperTokens account to an existing guest user.
+        """
+        ...
+
+    @abstractmethod
+    async def update(
+        self,
+        user: User,
+        data: UpdateUserData,
     ) -> User: ...

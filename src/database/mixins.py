@@ -36,11 +36,11 @@ class AuthMixin:
     SuperTokens userId
     """
 
-    auth_id: Mapped[str] = mapped_column(
+    auth_id: Mapped[str | None] = mapped_column(
         String(128),
         unique=True,
         index=True,
-        nullable=False,
+        nullable=True,
     )
 
 
